@@ -10,8 +10,6 @@ simd keys add GoN-Mnemonic --dry-run
 
 In output it should show the 24 words of the mnemonic and a cosmos address look like this `cosmos1abcdefghilmnopqrstuvzabcdefghilmnopqrs`. Save the mnemonic in a safe place for use in the following steps.
 
-**WARNING**: If you need only the addresses for now you can use a tool like this https://bech32.scrtlabs.com. Put one of the generated adresses from mnemonic in the left textarea and in the left text field the corresponding `hrp`, and put the target `hrp` in the right text field: your address will be generated in the right textarea.
-
 
 ## Install Iris and generate address
 
