@@ -33,7 +33,7 @@ It should be `1.4.1-gon-testnet`
 Generete your address
 
 ```bash
-iris keys add GoN-Address --recover
+iris keys add GoN-Address --recover --keyring-backend test 
 ```
 
 enter your mnemonic when prompt asks for it. The address should look something like this `iaa1abcdefghilmnopqrstuvzabcdefghilmnopqrs`
