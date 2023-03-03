@@ -17,6 +17,7 @@ Installation details from source: https://www.irisnet.org/docs/get-started/insta
 
 
 ```bash
+cd
 git clone https://github.com/irisnet/irishub
 cd irishub
 git checkout v1.4.1-gon-testnet
@@ -47,6 +48,7 @@ enter your mnemonic when prompt asks for it. The address should look something l
 Installation details from source: https://github.com/public-awesome/stargaze
 
 ```bash
+cd
 git clone https://github.com/public-awesome/stargaze.git
 cd stargaze
 git checkout v8.1.0
@@ -62,7 +64,7 @@ It should be `8.1.0`
 Generete your address
 
 ```bash
-starsd keys add GoN-Address --recover
+starsd keys add GoN-Address --recover  --keyring-backend test 
 ```
 
 enter your mnemonic when prompt asks for it. The address should look something like this `stars1abcdefghilmnopqrstuvzabcdefghilmnopqrs`
@@ -77,6 +79,7 @@ enter your mnemonic when prompt asks for it. The address should look something l
 Installation details from source: https://docs.junonetwork.io/validators/getting-setup
 
 ```bash
+cd
 git clone https://github.com/CosmosContracts/juno.git
 cd juno
 git checkout v12.0.0
@@ -93,7 +96,7 @@ It should be `v12.0.0`
 Generete your address
 
 ```bash
-junod keys add GoN-Address --recover
+junod keys add GoN-Address --recover --keyring-backend test 
 ```
 
 enter your mnemonic when prompt asks for it. The address should look something like this `juno1abcdefghilmnopqrstuvzabcdefghilmnopqrs`
@@ -109,6 +112,7 @@ Details details from source: https://github.com/UptickNetwork/uptick
 **WARNING**: I have not been able to compile with OSX. I used a linux vm.
 
 ```bash
+cd
 git clone https://github.com/UptickNetwork/uptick.git
 cd uptick
 git checkout v0.2.6
@@ -126,7 +130,7 @@ It should be `v0.2.6`
 Generete your address
 
 ```bash
-uptickd keys add GoN-Address --recover
+uptickd keys add GoN-Address --recover --keyring-backend test 
 ```
 
 enter your mnemonic when prompt asks for it. The address should look something like this `uptick1abcdefghilmnopqrstuvzabcdefghilmnopqrs`
@@ -142,9 +146,10 @@ Installation details from source: https://github.com/OmniFlix/omniflixhub.
 
 
 ```bash
+cd
 git clone https://github.com/Omniflix/omniflixhub.git
 cd omniflixhub
-git checkout v0.9.0-gon-rc7
+git checkout v0.9.0-gon-test
 go mod tidy
 make install
 ```
@@ -154,13 +159,13 @@ Check your version
 omniflixhubd version
 ```
 
-It should be `0.9.0-gon-rc7`
+It should be `0.9.0-gon-test`
 
 
 Generete your address
 
 ```bash
-omniflixhubd keys add GoN-Address --recover
+omniflixhubd keys add GoN-Address --recover --keyring-backend test 
 ```
 
 enter your mnemonic when prompt asks for it. The address should look something like this `omniflix1abcdefghilmnopqrstuvzabcdefghilmnopqrs`
