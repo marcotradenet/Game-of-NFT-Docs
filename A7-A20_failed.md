@@ -1781,7 +1781,7 @@ $JUNO_BIN q wasm contract-state smart $HASH \
 ### Juno to Iris
 
 
-## A13 Perform cross-chain NFT transfer as flow-b1 (CLOSE X) (FAIL REDO CHANNEL ERROR) <-- (CLOSE 99%)
+## A13 Perform cross-chain NFT transfer as flow-b1 (CLOSE X) (FAIL REDO CHANNEL ERROR)
 **Transfer in a revisit style.**
 
 **i --(1)--> s --(1)--> u --(1)--> s --(2)--> i**
@@ -1790,16 +1790,36 @@ $JUNO_BIN q wasm contract-state smart $HASH \
 ```bash
 
 
-NFT_ID="commNft019"
-./mint.sh $NFT_ID https://ipfs.io/ipfs/QmP1zASybJcn5MSVgAsyNEQUStmpLbB3jvsymbihE55anD "flow-b1"
+NFT_ID="commNft012"
+NFT_URI="https://drive.google.com/file/d/16Ql0-RCFhXgx7YV2iZKtAl0c0qHCx9NU/view?usp=share_link"
+NFT_FLOW="flow-b1"
 
-# 78C7DDCC8042631BB9A22BE8028739314E171A1CC50E6688C778FF6BBA76EBF3
+JSON_MINT='{"github_username": "marcotradenet","discord_handle": "MarcR#1797","team_name": "Commercio.Network","community": "none"}'
+
+$IRIS_BIN tx nft mint commnet001 $NFT_ID \
+--name "Commercio.Network NFT for $NFT_FLOW" \
+--uri "$NFT_URI" \
+--uri-hash "" \
+--data "$JSON_MINT" \
+--recipient $IRIS_ADDRESS \
+--gas auto \
+--gas-adjustment 1.4 \
+--fees 2000${IRIS_DENOM} \
+--from GoN-Address \
+--keyring-backend test \
+--chain-id "$IRIS_CHAIN_ID" \
+--node $IRIS_RPC -y
+
+# =====================================
+./mint.sh commNft012 https://drive.google.com/file/d/16Ql0-RCFhXgx7YV2iZKtAl0c0qHCx9NU/view?usp=share_link "flow-b1"
+
+# 2A2C952F2982697932FBD3EE0BAC70BF279337B0AF39510992155F9E07D17325
 
 
 ```
 
 
-### Iris to Stargaze (1)
+### Iris to Stargaze
 
 ```bash
 $IRIS_BIN tx nft-transfer transfer \
@@ -1816,29 +1836,44 @@ $IRIS_BIN tx nft-transfer transfer \
  --chain-id "$IRIS_CHAIN_ID" \
  --node $IRIS_RPC -y
 
-# 6A282AE60228E2404D67A784F19B9EF98AEFBA643BF9706D605CB0FF04FB7BEC
+# 7B8107485DA0ED16F807DF20DBD64EF0209E16A4B6BA2761DC1E36976BAE0C7B
 ```
 Verifica
 
 ```bash
 
+NFT_PATH=$(./echo_path.sh is)"commnet001"
+
+
 HASH=$($STARGAZE_BIN q wasm contract-state smart \
 $STARGAZE_PORT \
-'{"nft_contract": {"class_id" : "'$(./echo_path.sh is)"commnet001"'"}}' \
+'{"nft_contract": {"class_id" : "'$NFT_PATH'"}}' \
 --node $STARGAZE_RPC --output json | jq -r '.data')
 
 # data stars1kk2kyshcrmxxgavpuvd9dyfxyfsl49ngrq8ydkcrlmuekr3zlmqs0dtee4
 
-NFT_OWNER=$($STARGAZE_BIN q wasm contract-state smart $HASH \
+$STARGAZE_BIN q wasm contract-state smart $HASH \
 '{"all_nft_info":{"token_id": "'$NFT_ID'"}}' \
---node $STARGAZE_RPC --output json | jq -r '.data.access.owner')
+--node $STARGAZE_RPC --output json | jq '.'
+```
 
-if [ "$NFT_OWNER" = "$STARGAZE_ADDRESS" ]; then echo "OK"; fi
-# OK
+```json
+{
+  "data": {
+    "access": {
+      "owner": "stars13qfqt0htfel3sxzys8hqeql8gyyspn9zlgcllq",
+      "approvals": []
+    },
+    "info": {
+      "token_uri": "https://drive.google.com/file/d/16Ql0-RCFhXgx7YV2iZKtAl0c0qHCx9NU/view?usp=share_link",
+      "extension": {}
+    }
+  }
+}
 ```
 
 
-### Stargaze to Uptick (1)
+### Stargaze to Uptick
 
 ```bash
 MSG='{"receiver": "'$UPTICK_ADDRESS'","channel_id":"'$STARGAZE_TO_UPTICK_CHANNEL_1'","timeout": {"block": {"revision": 6,"height": 4697141}}}'
@@ -1858,26 +1893,57 @@ $STARGAZE_BIN tx wasm execute $HASH \
  --node $STARGAZE_RPC -y
 
 
-# 8A1AE62449CEAA1D81AE1E52E70B76E9A31AA70AB34B7E1F0377E24BFC44E244
+# 177CE9B87BFC0DCF35DE234178BCA18B02559CFD3C925402D4516B1140A19F7D
 ```
 
 Verifica
 
 
 ```bash
-NFT_PATH=
+NFT_PATH=$(./echo_path.sh isu)"commnet001"
 
-HASH=$($UPTICK_BIN q nft-transfer class-hash "$(./echo_path.sh isu)commnet001" --node $UPTICK_RPC --output json | jq -r '.hash')
+HASH=$($UPTICK_BIN q nft-transfer class-hash "$NFT_PATH" --node $UPTICK_RPC --output json | jq -r '.hash')
 
 # hash 9C81E2F8F10E5177A3A546D118F43BBEE57F7B90363B445545EF0FB107F320F4
 
-NFT_OWNER=$($UPTICK_BIN q collection collection ibc/$HASH  --node $UPTICK_RPC -o json | jq -r '.collection.nfts[] | select(.id=="'$NFT_ID'") | .owner')
-
-if [ "$NFT_OWNER" = "$UPTICK_ADDRESS" ]; then echo "OK"; fi
-# OK
+$UPTICK_BIN q collection collection ibc/$HASH \
+--node $UPTICK_RPC --output json | jq '.'
+```
+```json
+{
+  "collection": {
+    "denom": {
+      "id": "ibc/9C81E2F8F10E5177A3A546D118F43BBEE57F7B90363B445545EF0FB107F320F4",
+      "name": "",
+      "schema": "",
+      "creator": "uptick1lf6fde9wsspsdh6ph4jcsqpe9cjdhzky9g5as9",
+      "symbol": "",
+      "mint_restricted": true,
+      "update_restricted": true,
+      "description": "",
+      "uri": "https://commercio.network",
+      "uri_hash": "",
+      "data": "{\"community\":\"\",\"discord_handle\":\"MarcR#1797\",\"github_username\":\"marcotradenet\",\"irismod:creator\":{\"value\":\"881205beeb4e7f18184481ee0c83e7410900cca2\"},\"irismod:description\":{\"value\":\"\"},\"irismod:mint_restricted\":{\"value\":true},\"irismod:name\":{\"value\":\"Commercio.Network NFT GoN\"},\"irismod:schema\":{\"value\":\"\"},\"irismod:symbol\":{\"value\":\"commnet_symbol\"},\"irismod:update_restricted\":{\"value\":true},\"irismod:uri_hash\":{\"value\":\"\"},\"team_name\":\"Commercio.Network\"}"
+    },
+    "nfts": [
+      {
+        "id": "commNft012",
+        "name": "",
+        "uri": "https://drive.google.com/file/d/16Ql0-RCFhXgx7YV2iZKtAl0c0qHCx9NU/view?usp=share_link",
+        "data": "{\"community\":\"none\",\"discord_handle\":\"MarcR#1797\",\"github_username\":\"marcotradenet\",\"irismod:name\":{\"value\":\"Commercio.Network NFT for flow-b1\"},\"irismod:uri_hash\":{\"value\":\"\"},\"team_name\":\"Commercio.Network\"}",
+        "owner": "uptick142rx4z4eqvu589a9xv2tchy5ugkql6c7lntzvu",
+        "uri_hash": ""
+      }
+    ]
+  },
+  "pagination": {
+    "next_key": null,
+    "total": "0"
+  }
+}
 ```
 
-### Uptick to Stargaze (1)
+### Uptick to Stargaze
 
 ```bash
 $UPTICK_BIN tx nft-transfer transfer \
@@ -1894,9 +1960,9 @@ $UPTICK_BIN tx nft-transfer transfer \
 --chain-id "$UPTICK_CHAIN_ID" \
 --node $UPTICK_RPC -y
 
-# 007E40C89C81C9DD554973728381EEFCB51333EDB7FD7B48BE50C20889A1685D
+# 4C05F6AEDA7C0FB02064730586E143434D0F83C1FDD7ABA24AAD857954A8D36E
 
-$UPTICK_BIN q tx 007E40C89C81C9DD554973728381EEFCB51333EDB7FD7B48BE50C20889A1685D --node $UPTICK_RPC 
+$UPTICK_BIN q tx 4C05F6AEDA7C0FB02064730586E143434D0F83C1FDD7ABA24AAD857954A8D36E --node $UPTICK_RPC 
 ```
 
 Verifica
@@ -1916,20 +1982,31 @@ $STARGAZE_PORT \
 
 # data stars1kk2kyshcrmxxgavpuvd9dyfxyfsl49ngrq8ydkcrlmuekr3zlmqs0dtee4
 
-NFT_OWNER=$($STARGAZE_BIN q wasm contract-state smart $HASH \
+$STARGAZE_BIN q wasm contract-state smart $HASH \
 '{"all_nft_info":{"token_id": "'$NFT_ID'"}}' \
---node $STARGAZE_RPC --output json | jq -r '.data.access.owner')
-
-if [ "$NFT_OWNER" = "$STARGAZE_ADDRESS" ]; then echo "OK"; fi
-# OK
+--node $STARGAZE_RPC --output json | jq '.'
 
 ```
 
+```json
+{
+  "data": {
+    "access": {
+      "owner": "stars13qfqt0htfel3sxzys8hqeql8gyyspn9zlgcllq",
+      "approvals": []
+    },
+    "info": {
+      "token_uri": "https://drive.google.com/file/d/16Ql0-RCFhXgx7YV2iZKtAl0c0qHCx9NU/view?usp=share_link",
+      "extension": {}
+    }
+  }
+}
+```
 
-### Stargaze to Iris (2) <--- DOVE E' L'NFT?
+### Stargaze to Iris
 
 ```bash
-MSG='{"receiver": "'$IRIS_ADDRESS'","channel_id":"'$STARGAZE_TO_IRIS_CHANNEL_2'","timeout": {"block": {"revision": 6,"height": 4697141}}}'
+MSG='{"receiver": "'$IRIS_ADDRESS'","channel_id":"'$STARGAZE_TO_IRIS_CHANNEL_1'","timeout": {"block": {"revision": 6,"height": 4697141}}}'
 
 MSG_BASE64=$(echo "$MSG" | base64 | tr -d "\n")
 
@@ -1945,24 +2022,16 @@ $STARGAZE_BIN tx wasm execute $HASH \
  --chain-id "$STARGAZE_CHAIN_ID" \
  --node $STARGAZE_RPC -y
 
-# 249FD25CDCA7840C622BFF1F57A4188B06907552EAC85EAE09ADE9F807C3EC3F
+
+# 225939A82833259CC6E7F71871FB24B63211069CDF6C7031F0791E5C903F9C11
 ```
 
-Verifica QUI NON SI TROVA L'NFT
+Verifica
 ```bash
 
-NFT_PATH=$(./echo_path.sh is)"commnet001"
-SEG="nft-transfer/$IRIS_TO_STARGAZE_CHANNEL_2"
-NFT_PATH="$SEG/$NFT_PATH"
+NFT_PATH=$(./echo_path.sh issi)"commnet001"
+NFT_PATH="commnet001"
 HASH=$($IRIS_BIN q nft-transfer class-hash "$NFT_PATH" --node $IRIS_RPC --output json | jq -r ".hash")
-
-
-
-# ====================================================
-# NON si capisce come trovare ibc comunque è questo qua sotto
-
-# 486085C3FE5B467987F4ACB0330A4066B9B35F515159EAE24EA54C05E55A614E
-
 
 # hash commNft012
 
@@ -1978,7 +2047,7 @@ echo $IRIS_ADDRESS
 
 
 
-## A14 Perform cross-chain NFT transfer as flow-b2 (CLOSE) (OK CHANNEL)
+## A14 Perform cross-chain NFT transfer as flow-b2 (CLOSE X) (FAIL REDO CHANNEL ERROR)
 
 **i --(1)--> u --(1)--> o --(1)--> u --(2)--> i**
 
@@ -1986,13 +2055,14 @@ echo $IRIS_ADDRESS
 
 ```bash
 # =====================================
-NFT_ID="commNft020"
-./mint.sh $NFT_ID  "https://ipfs.io/ipfs/QmUacch5Fnx1HEYM3syVobn3fDHH1EPrw8MfxjxT9u6Eew" "flow-b2"
+NFT_ID="commNft013"
 
-# 158B30342C2704D79058BAB2695F6698AE7E5ED5B79E7206A2F1FEAB16BBA002
+./mint.sh $NFT_ID  "https://ipfs.io/ipfs/QmSp1Z9u5NCeiTb2dnYZTJTkymJDR2f2fN4ZuHaoaVNMNB" "flow-b2"
+
+# 0229E8258CAC328AA91783E5069DF0896E1D734C058743E3DEF2F5180A0CD103
 ```
 
-### Iris to Uptick (1)
+### Iris to Uptick
 
 ```bash
 $IRIS_BIN tx nft-transfer transfer \
@@ -2009,7 +2079,7 @@ $IRIS_BIN tx nft-transfer transfer \
 --chain-id "$IRIS_CHAIN_ID" \
 --node $IRIS_RPC -y
 
-# 7CCAE6269F04CFBD070D987E27D8888EBC1CD3416B7AA43ADAEC8DF3BB961638
+# ED020419F8ABF1B71749199D9246B512314D907EC6B0BEB5D7622FD6703D2B88
 
 ```
 
@@ -2024,18 +2094,55 @@ HASH=$($UPTICK_BIN query nft-transfer class-hash \
 
 # hash EFAF63750C0C9DFA450EC2AA3377F32CF7398888436F8412DC127C4236FAAB7B
 
-NFT_OWNER=$($UPTICK_BIN q collection collection ibc/$HASH  --node $UPTICK_RPC -o json | jq -r '.collection.nfts[] | select(.id=="'$NFT_ID'") | .owner')
-
-if [ "$NFT_OWNER" = "$UPTICK_ADDRESS" ]; then echo "OK"; fi
-#OK
 
 $UPTICK_BIN query collection collection \
 ibc/$HASH \
 --node $UPTICK_RPC -o json | jq '.'
 ```
 
+```json
+{
+  "collection": {
+    "denom": {
+      "id": "ibc/EFAF63750C0C9DFA450EC2AA3377F32CF7398888436F8412DC127C4236FAAB7B",
+      "name": "",
+      "schema": "",
+      "creator": "uptick1lf6fde9wsspsdh6ph4jcsqpe9cjdhzky9g5as9",
+      "symbol": "",
+      "mint_restricted": true,
+      "update_restricted": true,
+      "description": "",
+      "uri": "https://commercio.network",
+      "uri_hash": "",
+      "data": "{\"community\":\"\",\"discord_handle\":\"MarcR#1797\",\"github_username\":\"marcotradenet\",\"irismod:creator\":{\"value\":\"881205beeb4e7f18184481ee0c83e7410900cca2\"},\"irismod:description\":{\"value\":\"\"},\"irismod:mint_restricted\":{\"value\":true},\"irismod:name\":{\"value\":\"Commercio.Network NFT GoN\"},\"irismod:schema\":{\"value\":\"\"},\"irismod:symbol\":{\"value\":\"commnet_symbol\"},\"irismod:update_restricted\":{\"value\":true},\"irismod:uri_hash\":{\"value\":\"\"},\"team_name\":\"Commercio.Network\"}"
+    },
+    "nfts": [
+      {
+        "id": "commNft007",
+        "name": "",
+        "uri": "https://drive.google.com/file/d/1_m1x86gvs2CcCZxGv4dVCuqmgHrFYFb0/view?usp=sharing",
+        "data": "{\"community\":\"none\",\"discord_handle\":\"MarcR#1797\",\"github_username\":\"marcotradenet\",\"irismod:name\":{\"value\":\"Commercio.Network NFT for flow-a2\"},\"irismod:uri_hash\":{\"value\":\"\"},\"team_name\":\"Commercio.Network\"}",
+        "owner": "uptick1f9mc9659nljtfznv6p4rzuh0gxa6sz4xuj6zhn",
+        "uri_hash": ""
+      },
+      {
+        "id": "commNft013",
+        "name": "",
+        "uri": "https://ipfs.io/ipfs/QmSp1Z9u5NCeiTb2dnYZTJTkymJDR2f2fN4ZuHaoaVNMNB",
+        "data": "{\"community\":\"none\",\"discord_handle\":\"MarcR#1797\",\"github_username\":\"marcotradenet\",\"irismod:name\":{\"value\":\"Commercio.Network NFT for flow-b2\"},\"irismod:uri_hash\":{\"value\":\"\"},\"team_name\":\"Commercio.Network\"}",
+        "owner": "uptick142rx4z4eqvu589a9xv2tchy5ugkql6c7lntzvu",
+        "uri_hash": ""
+      }
+    ]
+  },
+  "pagination": {
+    "next_key": null,
+    "total": "0"
+  }
+}
+```
 
-### Uptick to Omniflix (1)
+### Uptick to Omniflix
 
 ```bash
 $UPTICK_BIN tx nft-transfer transfer \
@@ -2052,9 +2159,9 @@ $UPTICK_BIN tx nft-transfer transfer \
 --chain-id "$UPTICK_CHAIN_ID" \
 --node $UPTICK_RPC -y
 
-# 7D73134FCB0F4D97855A017482F30B09D6B83B9A948A0538229867CF474E3255
+# 75FAF5A7F28287B3B15FACD1588E630E4E1655EB64406FC076A36DC28E7991E3
 
-$UPTICK_BIN q tx 7D73134FCB0F4D97855A017482F30B09D6B83B9A948A0538229867CF474E3255 --node $UPTICK_RPC 
+$UPTICK_BIN q tx 75FAF5A7F28287B3B15FACD1588E630E4E1655EB64406FC076A36DC28E7991E3 --node $UPTICK_RPC 
 
 ```
 
@@ -2071,15 +2178,65 @@ HASH=$($OMNIFLIX_BIN query nft-transfer class-hash \
 # hash 156A44E19C2E8D2F655F1F84FF1256933814E53D04B88DB0E48C8BE7863E228C
 
 
-NFT_OWNER=$($OMNIFLIX_BIN query onft asset \
-ibc/$HASH $NFT_ID \
---node $OMNIFLIX_RPC -o json | jq -r '.owner')
-
-if [ "$NFT_OWNER" = "$OMNIFLIX_ADDRESS" ]; then echo "OK"; fi
-# OK
+$OMNIFLIX_BIN query onft collection \
+ibc/$HASH \
+--node $OMNIFLIX_RPC -o json | jq '.'
+```
+```json
+{
+  "denom": {
+    "id": "ibc/156A44E19C2E8D2F655F1F84FF1256933814E53D04B88DB0E48C8BE7863E228C",
+    "symbol": "",
+    "name": "",
+    "schema": "",
+    "creator": "omniflix1zcpsseay358eu0mw6gdhdpx26q87mp7mx3ksgw",
+    "description": "",
+    "preview_uri": "",
+    "uri": "https://commercio.network",
+    "uri_hash": "",
+    "data": "{\"community\":\"\",\"discord_handle\":\"MarcR#1797\",\"github_username\":\"marcotradenet\",\"irismod:creator\":{\"value\":\"881205beeb4e7f18184481ee0c83e7410900cca2\"},\"irismod:description\":{\"value\":\"\"},\"irismod:mint_restricted\":{\"value\":true},\"irismod:name\":{\"value\":\"Commercio.Network NFT GoN\"},\"irismod:schema\":{\"value\":\"\"},\"irismod:symbol\":{\"value\":\"commnet_symbol\"},\"irismod:update_restricted\":{\"value\":true},\"irismod:uri_hash\":{\"value\":\"\"},\"team_name\":\"Commercio.Network\",\"uptickd:creator\":{\"value\":\"fa7496e4ae840306df41bd658800392e24db8ac4\"},\"uptickd:description\":{\"value\":\"\"},\"uptickd:mint_restricted\":{\"value\":true},\"uptickd:name\":{\"value\":\"\"},\"uptickd:schema\":{\"value\":\"\"},\"uptickd:symbol\":{\"value\":\"\"},\"uptickd:update_restricted\":{\"value\":true},\"uptickd:uri_hash\":{\"value\":\"\"}}"
+  },
+  "onfts": [
+    {
+      "id": "commNft007",
+      "metadata": {
+        "name": "",
+        "description": "",
+        "media_uri": "https://drive.google.com/file/d/1_m1x86gvs2CcCZxGv4dVCuqmgHrFYFb0/view?usp=sharing",
+        "preview_uri": "",
+        "uri_hash": ""
+      },
+      "data": "{\"community\":\"none\",\"discord_handle\":\"MarcR#1797\",\"github_username\":\"marcotradenet\",\"irismod:name\":{\"value\":\"Commercio.Network NFT for flow-a2\"},\"irismod:uri_hash\":{\"value\":\"\"},\"team_name\":\"Commercio.Network\",\"uptickd:name\":{\"value\":\"\"},\"uptickd:uri_hash\":{\"value\":\"\"}}",
+      "owner": "omniflix1m2nuc50f4qk2czsahluts574agsn9gr9zrnmkt",
+      "transferable": true,
+      "extensible": true,
+      "created_at": "0001-01-01T00:00:00Z",
+      "nsfw": false,
+      "royalty_share": "0.000000000000000000"
+    },
+    {
+      "id": "commNft013",
+      "metadata": {
+        "name": "",
+        "description": "",
+        "media_uri": "https://ipfs.io/ipfs/QmSp1Z9u5NCeiTb2dnYZTJTkymJDR2f2fN4ZuHaoaVNMNB",
+        "preview_uri": "",
+        "uri_hash": ""
+      },
+      "data": "{\"community\":\"none\",\"discord_handle\":\"MarcR#1797\",\"github_username\":\"marcotradenet\",\"irismod:name\":{\"value\":\"Commercio.Network NFT for flow-b2\"},\"irismod:uri_hash\":{\"value\":\"\"},\"team_name\":\"Commercio.Network\",\"uptickd:name\":{\"value\":\"\"},\"uptickd:uri_hash\":{\"value\":\"\"}}",
+      "owner": "omniflix13qfqt0htfel3sxzys8hqeql8gyyspn9zk27mr0",
+      "transferable": true,
+      "extensible": true,
+      "created_at": "0001-01-01T00:00:00Z",
+      "nsfw": false,
+      "royalty_share": "0.000000000000000000"
+    }
+  ]
+}
 ```
 
-### Omniflix to Uptick (1) 
+
+### Omniflix to Uptick
 
 ```bash
 $OMNIFLIX_BIN tx nft-transfer transfer \
@@ -2096,7 +2253,7 @@ $OMNIFLIX_BIN tx nft-transfer transfer \
 --chain-id "$OMNIFLIX_CHAIN_ID" \
 --node $OMNIFLIX_RPC -y
 
-# 0C111D5E10C9D4E88AD1B3CD20B3A83058C67015FF8D04ECAC8FA581789E9FFA
+# 41F98A022D839CC5F1C25284B9A02110418D68CD5FD826FC89EC4036EC3861F1
 
 ```
 
@@ -2111,19 +2268,61 @@ HASH=$($UPTICK_BIN query nft-transfer class-hash \
 
 # hash EFAF63750C0C9DFA450EC2AA3377F32CF7398888436F8412DC127C4236FAAB7B
 
-NFT_OWNER=$($UPTICK_BIN q collection collection ibc/$HASH  --node $UPTICK_RPC -o json | jq -r '.collection.nfts[] | select(.id=="'$NFT_ID'") | .owner')
 
-if [ "$NFT_OWNER" = "$UPTICK_ADDRESS" ]; then echo "OK"; fi
-#OK
+$UPTICK_BIN query collection collection \
+ibc/$HASH \
+--node $UPTICK_RPC -o json | jq '.'
+```
+
+```json
+{
+  "collection": {
+    "denom": {
+      "id": "ibc/EFAF63750C0C9DFA450EC2AA3377F32CF7398888436F8412DC127C4236FAAB7B",
+      "name": "",
+      "schema": "",
+      "creator": "uptick1lf6fde9wsspsdh6ph4jcsqpe9cjdhzky9g5as9",
+      "symbol": "",
+      "mint_restricted": true,
+      "update_restricted": true,
+      "description": "",
+      "uri": "https://commercio.network",
+      "uri_hash": "",
+      "data": "{\"community\":\"\",\"discord_handle\":\"MarcR#1797\",\"github_username\":\"marcotradenet\",\"irismod:creator\":{\"value\":\"881205beeb4e7f18184481ee0c83e7410900cca2\"},\"irismod:description\":{\"value\":\"\"},\"irismod:mint_restricted\":{\"value\":true},\"irismod:name\":{\"value\":\"Commercio.Network NFT GoN\"},\"irismod:schema\":{\"value\":\"\"},\"irismod:symbol\":{\"value\":\"commnet_symbol\"},\"irismod:update_restricted\":{\"value\":true},\"irismod:uri_hash\":{\"value\":\"\"},\"team_name\":\"Commercio.Network\"}"
+    },
+    "nfts": [
+      {
+        "id": "commNft007",
+        "name": "",
+        "uri": "https://drive.google.com/file/d/1_m1x86gvs2CcCZxGv4dVCuqmgHrFYFb0/view?usp=sharing",
+        "data": "{\"community\":\"none\",\"discord_handle\":\"MarcR#1797\",\"github_username\":\"marcotradenet\",\"irismod:name\":{\"value\":\"Commercio.Network NFT for flow-a2\"},\"irismod:uri_hash\":{\"value\":\"\"},\"team_name\":\"Commercio.Network\"}",
+        "owner": "uptick1f9mc9659nljtfznv6p4rzuh0gxa6sz4xuj6zhn",
+        "uri_hash": ""
+      },
+      {
+        "id": "commNft013",
+        "name": "",
+        "uri": "https://ipfs.io/ipfs/QmSp1Z9u5NCeiTb2dnYZTJTkymJDR2f2fN4ZuHaoaVNMNB",
+        "data": "{\"community\":\"none\",\"discord_handle\":\"MarcR#1797\",\"github_username\":\"marcotradenet\",\"irismod:name\":{\"value\":\"Commercio.Network NFT for flow-b2\"},\"irismod:uri_hash\":{\"value\":\"\"},\"omniflix:created_at\":{\"value\":\"0001-01-01T00:00:00Z\"},\"omniflix:description\":{\"value\":\"\"},\"omniflix:extensible\":{\"value\":true},\"omniflix:name\":{\"value\":\"\"},\"omniflix:nsfw\":{\"value\":false},\"omniflix:preview_uri\":{\"value\":\"\"},\"omniflix:royalty_share\":{\"value\":\"0.000000000000000000\"},\"omniflix:transferable\":{\"value\":true},\"omniflix:uri_hash\":{\"value\":\"\"},\"team_name\":\"Commercio.Network\"}",
+        "owner": "uptick142rx4z4eqvu589a9xv2tchy5ugkql6c7lntzvu",
+        "uri_hash": ""
+      }
+    ]
+  },
+  "pagination": {
+    "next_key": null,
+    "total": "0"
+  }
+}
 ```
 
 
-### Uptick to Iris (2) <
+### Uptick to Iris
 
 ```bash
 $UPTICK_BIN tx nft-transfer transfer \
  nft-transfer \
- $UPTICK_TO_IRIS_CHANNEL_2 \
+ $UPTICK_TO_IRIS_CHANNEL_1 \
  $IRIS_ADDRESS \
  ibc/$HASH \
  $NFT_ID \
@@ -2135,93 +2334,58 @@ $UPTICK_BIN tx nft-transfer transfer \
  --chain-id "$UPTICK_CHAIN_ID" \
  --node $UPTICK_RPC -y
 
-# 1BA4F7A4D36739B7E8DFD012F96A5C6241FFB2B6D2758B1F562E77885536DDA9
+# C4D162B5798EF3CD1DF15187847941C56695A777F79255679D13FCF78049248A
 
-$UPTICK_BIN q tx 1BA4F7A4D36739B7E8DFD012F96A5C6241FFB2B6D2758B1F562E77885536DDA9 --node $UPTICK_RPC 
+$UPTICK_BIN q tx C4D162B5798EF3CD1DF15187847941C56695A777F79255679D13FCF78049248A --node $UPTICK_RPC 
 ```
 
 
 Verifica
 
 ```bash
-NFT_PATH=$(./echo_path.sh iu)"commnet001"
-SEG="nft-transfer/$IRIS_TO_UPTICK_CHANNEL_2"
-NFT_PATH="$SEG/$NFT_PATH"
-
-HASH=$($IRIS_BIN q nft-transfer class-hash "$NFT_PATH" --node $IRIS_RPC --output json | jq -r ".hash")
-
-# hash 8BBE63F51E1B2D4A546063DA19CC224130B32FA6BFDC5F7E15520FC3DED13774
-
-NFT_OWNER=$($IRIS_BIN q nft token ibc/$HASH $NFT_ID --node $IRIS_RPC --output json | jq -r '.owner')
+NFT_OWNER=$($IRIS_BIN q nft token commnet001 $NFT_ID --node $IRIS_RPC --output json | jq -r '.owner')
 
 # "iaa13qfqt0htfel3sxzys8hqeql8gyyspn9z7k0nkq"
-if [ "$NFT_OWNER" = "$IRIS_ADDRESS" ]; then echo "OK"; fi
-# OK
+if [ "$NFT_OWNER" = "$IRIS_ADDRESS" ]; then
+echo "OK"
+fi
 ```
 
 
-## A15 Perform cross-chain NFT transfer as flow-b3 (CLOSE) (OK CHANNEL)
+## A15 Perform cross-chain NFT transfer as flow-b3 (CLOSE X) (FAIL REDO CHANNEL ERROR)
 
 **i --(1)--> j --(1)--> u --(1)--> j --(2)--> i**
 
-### Prepare
+Uso nft "commNft001"
+
+
+Provo il mint di un ulteriore NFT
 
 ```bash
-# =====================================
-NFT_ID="commNft022"
-./mint.sh $NFT_ID  "https://ipfs.io/ipfs/QmbVvAg4wmaNXUu3xzNb8jifnFQ3P4Z3Yyrv2z8Ykkbx95" "flow-b3"
 
-# FACDDCE94CE32778E479224EB64062DA84D849D5E0BE7B7494548B1EB73B17AC
+
 ```
 
-### Iris to Juno (1)
+
+### Juno to Uptick
 ```bash
-$IRIS_BIN tx nft-transfer transfer \
- nft-transfer \
- $IRIS_TO_JUNO_CHANNEL_1 \
- $JUNO_ADDRESS \
- commnet001 \
- $NFT_ID \
- --gas auto \
- --gas-adjustment 1.4 \
- --fees 2000${IRIS_DENOM} \
- --from GoN-Address \
- --keyring-backend test \
- --chain-id "$IRIS_CHAIN_ID" \
- --node $IRIS_RPC -y
+JUNO_ADDRESS=$(junod keys show $WALLET_NAME  --keyring-backend test --output json | jq -r '.address')
+JUNO_TRANSFER_CONTRACT="juno1stv6sk0mvku34fj2mqrlyru6683866n306mfv52tlugtl322zmks26kg7a"
 
-# 48FC1D06747829EC2CFAF06CF388AFA37815EC53A9784D4535D1F810810D291D
-```
-
-Verifica
-
-```bash
-
-
-HASH=$($JUNO_BIN q wasm contract-state smart \
-$JUNO_PORT \
-'{"nft_contract": {"class_id" : "'$(./echo_path.sh ij)"commnet001"'"}}' \
---node $JUNO_RPC --output json | jq -r '.data')
-
-# data juno18tyutq4scpyk9j0u2e0vrpzukrnqv4sc9gu3l9f6tw4lh3674qjqj5ruzc
-
-NFT_OWNER=$($JUNO_BIN q wasm contract-state smart $HASH \
-'{"all_nft_info":{"token_id": "'$NFT_ID'"}}' \
---node $JUNO_RPC --output json | jq -r '.data.access.owner')
-
-if [ "$NFT_OWNER" = "$JUNO_ADDRESS" ]; then echo "OK"; fi
-# OK
-```
-
-### Juno to Uptick (1)
-```bash
 MSG='{"receiver": "'$UPTICK_ADDRESS'","channel_id":"'$JUNO_TO_UPTICK_CHANNEL_1'","timeout": {"block": {"revision": 6,"height": 4697141}}}'
+
+# {"receiver": "uptick142rx4z4eqvu589a9xv2tchy5ugkql6c7lntzvu","channel_id":"channel-86","timeout": {"block": {"revision": 6,"height": 4697141}}}
+
 
 MSG_BASE64=$(echo "$MSG" | base64 | tr -d "\n")
 
-JSON_MSG='{"send_nft": {"contract": "'$JUNO_PORT'", "token_id": "'$NFT_ID'", "msg":  "'$MSG_BASE64'"}}'
+JSON_MSG='{"send_nft": {"contract": "'$JUNO_TRANSFER_CONTRACT'", "token_id": "commNft001", "msg":  "'$MSG_BASE64'"}}'
 
-$JUNO_BIN tx wasm execute $HASH \
+JUNO_DENOM_CONTRACT=$(junod q wasm contract-state smart $JUNO_TRANSFER_CONTRACT '{"nft_contract": {"class_id" : "wasm.'$JUNO_TRANSFER_CONTRACT'/'$JUNO_TO_IRIS_CHANNEL_1'/commnet001"}}' --node $JUNO_RPC --output json | jq -r '.data')
+
+
+
+$JUNO_BIN tx wasm execute $JUNO_DENOM_CONTRACT \
 "$JSON_MSG" \
  --gas auto \
  --gas-adjustment 1.4 \
@@ -2229,37 +2393,73 @@ $JUNO_BIN tx wasm execute $HASH \
  --from GoN-Address \
  --keyring-backend test \
  --chain-id "$JUNO_CHAIN_ID" \
- --node $JUNO_RPC -y
+--node $JUNO_RPC -y
 
-# 65E1B2A23C3037C3B0AD31BF7BA0C0629649F429076B3405DDB2F7BC0C054B9D
+# 519A0C3D7471AB5C68916C8AB17CF82943956E7E310BEA07F742F09EC0D22988
 
 ```
 Verifica
 
 ```bash
 
-HASH=$($UPTICK_BIN q nft-transfer class-hash "$(./echo_path.sh iju)commnet001" \
+HASH=$($UPTICK_BIN q nft-transfer class-hash "nft-transfer/$UPTICK_TO_JUNO_CHANNEL_1/wasm.juno1stv6sk0mvku34fj2mqrlyru6683866n306mfv52tlugtl322zmks26kg7a/$JUNO_TO_IRIS_CHANNEL_1/commnet001" \
 --node $UPTICK_RPC --output json | jq -r '.hash')
 
-# hash 3A81E3EA020ABA7A36E13ECDA756165227F2D6CC3BE119DDE15BE611FD58627D
 
-NFT_OWNER=$($UPTICK_BIN q collection collection ibc/$HASH  --node $UPTICK_RPC -o json | jq -r '.collection.nfts[] | select(.id=="'$NFT_ID'") | .owner')
+# 3A81E3EA020ABA7A36E13ECDA756165227F2D6CC3BE119DDE15BE611FD58627D
 
-if [ "$NFT_OWNER" = "$UPTICK_ADDRESS" ]; then echo "OK"; fi
-# OK
+$UPTICK_BIN q collection collection ibc/$HASH  --node $UPTICK_RPC -o json | jq  '.'
+
+```
+
+```json
+{
+  "collection": {
+    "denom": {
+      "id": "ibc/3A81E3EA020ABA7A36E13ECDA756165227F2D6CC3BE119DDE15BE611FD58627D",
+      "name": "",
+      "schema": "",
+      "creator": "uptick1lf6fde9wsspsdh6ph4jcsqpe9cjdhzky9g5as9",
+      "symbol": "",
+      "mint_restricted": true,
+      "update_restricted": true,
+      "description": "",
+      "uri": "https://commercio.network",
+      "uri_hash": "",
+      "data": "{\"community\":\"\",\"discord_handle\":\"MarcR#1797\",\"github_username\":\"marcotradenet\",\"irismod:creator\":{\"value\":\"881205beeb4e7f18184481ee0c83e7410900cca2\"},\"irismod:description\":{\"value\":\"\"},\"irismod:mint_restricted\":{\"value\":true},\"irismod:name\":{\"value\":\"Commercio.Network NFT GoN\"},\"irismod:schema\":{\"value\":\"\"},\"irismod:symbol\":{\"value\":\"commnet_symbol\"},\"irismod:update_restricted\":{\"value\":true},\"irismod:uri_hash\":{\"value\":\"\"},\"team_name\":\"Commercio.Network\"}"
+    },
+    "nfts": [
+      {
+        "id": "commNft001",
+        "name": "",
+        "uri": "https://ipfs.io/ipfs/Qmcz9y5adhZ4RwE6H5RxmEJuDg2VJLkfsXFPJe75ZdVZ8u",
+        "data": "{\"community\":\"\",\"discord_handle\":\"MarcR#1797\",\"github_username\":\"marcotradenet\",\"irismod:name\":{\"value\":\"Commercio.Network 1th NFT for Juno\"},\"irismod:uri_hash\":{\"value\":\"\"},\"team_name\":\"Commercio.Network\"}",
+        "owner": "uptick142rx4z4eqvu589a9xv2tchy5ugkql6c7lntzvu",
+        "uri_hash": ""
+      }
+    ]
+  },
+  "pagination": {
+    "next_key": null,
+    "total": "0"
+  }
+}
 ```
 
 
-### Uptick to Juno (1)
+### Uptick to Juno
 
 
 ```bash
+HASH=$($UPTICK_BIN q nft-transfer class-hash "nft-transfer/$UPTICK_TO_JUNO_CHANNEL_1/wasm.juno1stv6sk0mvku34fj2mqrlyru6683866n306mfv52tlugtl322zmks26kg7a/$JUNO_TO_IRIS_CHANNEL_1/commnet001" \
+--node $UPTICK_RPC --output json | jq -r '.hash')
+
 $UPTICK_BIN tx nft-transfer transfer \
  nft-transfer \
  $UPTICK_TO_JUNO_CHANNEL_1 \
  $JUNO_ADDRESS \
  ibc/$HASH \
- $NFT_ID \
+ commNft001 \
  --gas auto \
  --gas-adjustment 1.4 \
 --fees 2000${UPTICK_DENOM} \
@@ -2268,42 +2468,45 @@ $UPTICK_BIN tx nft-transfer transfer \
 --chain-id "$UPTICK_CHAIN_ID" \
 --node $UPTICK_RPC -y
 
-# E59B266ED5A3FDC8C3052E3AEA9FFB6D6AA8F714877C3C91FA3FD3FD73E39E8C
+# 
 
+# 234A340FE37682B958779029D945E8EAAEAF922148EF26D3F43E514F12E65F64
+# ERRRORE CON L'INDIRIZZO DI DESTINAZIONE ----> 57CD927691E1C13E175DE085702BF9D54798D3A7C494202683D82E94974E7B80
 
-$UPTICK_BIN q tx E59B266ED5A3FDC8C3052E3AEA9FFB6D6AA8F714877C3C91FA3FD3FD73E39E8C --node $UPTICK_RPC
+$UPTICK_BIN q tx 234A340FE37682B958779029D945E8EAAEAF922148EF26D3F43E514F12E65F64 --node $UPTICK_RPC
 
 ```
 
 Verifica
+**??? IL PATH IN QUESTO CASO NON SEMBRA AVER FUNZIONATO CORRETTAMENTE**
 
 ```bash
+$JUNO_BIN q wasm contract-state smart \
+juno1stv6sk0mvku34fj2mqrlyru6683866n306mfv52tlugtl322zmks26kg7a \
+'{"nft_contract": {"class_id" : "wasm.juno1stv6sk0mvku34fj2mqrlyru6683866n306mfv52tlugtl322zmks26kg7a/'$JUNO_TO_UPTICK_CHANNEL_1'/nft-transfer/'$UPTICK_TO_JUNO_CHANNEL_1'/wasm.juno1stv6sk0mvku34fj2mqrlyru6683866n306mfv52tlugtl322zmks26kg7a/'$JUNO_TO_IRIS_CHANNEL_1'/commnet001"}}' \
+--node $JUNO_RPC 
+# 
 
-HASH=$($JUNO_BIN q wasm contract-state smart $JUNO_PORT \
-'{"nft_contract": {"class_id" : "'$(./echo_path.sh ij)"commnet001"'"}}' --node $JUNO_RPC --output json | jq -r '.data')
+$JUNO_BIN q wasm contract-state smart juno1stv6sk0mvku34fj2mqrlyru6683866n306mfv52tlugtl322zmks26kg7a '{"nft_contract": {"class_id" : "wasm.juno1stv6sk0mvku34fj2mqrlyru6683866n306mfv52tlugtl322zmks26kg7a/'$JUNO_TO_IRIS_CHANNEL_1'/commnet001"}}' --node $JUNO_RPC 
+
 
 # juno18tyutq4scpyk9j0u2e0vrpzukrnqv4sc9gu3l9f6tw4lh3674qjqj5ruzc
 
-NFT_OWNER=$($JUNO_BIN q wasm contract-state smart $HASH \
-'{"all_nft_info":{"token_id": "'$NFT_ID'"}}' \
---node $JUNO_RPC --output json | jq -r '.data.access.owner')
-
-if [ "$NFT_OWNER" = "$JUNO_ADDRESS" ]; then echo "OK"; fi
-# OK
+$JUNO_BIN q wasm contract-state smart juno18tyutq4scpyk9j0u2e0vrpzukrnqv4sc9gu3l9f6tw4lh3674qjqj5ruzc '{"all_nft_info":{"token_id": "commNft001"}}' --node $JUNO_RPC
 
 ```
 
-### Juno to Iris (2)
+### Juno to Iris
 
 ```bash
-MSG='{"receiver": "'$IRIS_ADDRESS'","channel_id":"'$JUNO_TO_IRIS_CHANNEL_2'","timeout": {"block": {"revision": 6,"height": 4697141}}}'
+MSG='{"receiver": "'$IRIS_ADDRESS'","channel_id":"'$JUNO_TO_IRIS_CHANNEL_1'","timeout": {"block": {"revision": 6,"height": 4697141}}}'
 
 MSG_BASE64=$(echo "$MSG" | base64 | tr -d "\n")
 
-JSON_MSG='{"send_nft": {"contract": "'$JUNO_PORT'", "token_id": "'$NFT_ID'", "msg":  "'$MSG_BASE64'"}}'
+JSON_MSG='{"send_nft": {"contract": "juno1stv6sk0mvku34fj2mqrlyru6683866n306mfv52tlugtl322zmks26kg7a", "token_id": "commNft001", "msg":  "'$MSG_BASE64'"}}'
 
 
-$JUNO_BIN tx wasm execute $HASH \
+$JUNO_BIN tx wasm execute juno18tyutq4scpyk9j0u2e0vrpzukrnqv4sc9gu3l9f6tw4lh3674qjqj5ruzc \
 "$JSON_MSG" \
  --gas auto \
  --gas-adjustment 1.4 \
@@ -2313,7 +2516,7 @@ $JUNO_BIN tx wasm execute $HASH \
  --chain-id "$JUNO_CHAIN_ID" \
  --node $JUNO_RPC -y
 
-# 9E0CF8AD87E09B237CA85D733D8EE81F84F85105F3ECF65815294B17A3873D5F
+# 64402BEC265B34F53A52369664374C28C60F7C439D783BB2D8524481F5132456
 
 ```
 
@@ -2321,22 +2524,16 @@ Verifica
 
 ```bash
 
-NFT_PATH=$(./echo_path.sh ij)"commnet001"
-SEG="nft-transfer/$IRIS_TO_JUNO_CHANNEL_2"
-NFT_PATH=$SEG/$NFT_PATH
+NFT_OWNER=$($IRIS_BIN q nft token commnet001 $NFT_ID --node $IRIS_RPC --output json | jq -r '.owner')
 
-HASH=$($IRIS_BIN q nft-transfer class-hash "$NFT_PATH" \
---node $IRIS_RPC --output json | jq -r ".hash")
-
-# hash 6729E822E0FDCFE02B69B0445C6CBB12AE3580EF97318B71048D35D16C5ECF49
-
-
-NFT_OWNER=$($IRIS_BIN q nft token ibc/$HASH $NFT_ID --node $IRIS_RPC --output json | jq -r '.owner')
-
-if [ "$NFT_OWNER" = "$IRIS_ADDRESS" ]; then echo "OK"; fi
-# OK
+# "iaa13qfqt0htfel3sxzys8hqeql8gyyspn9z7k0nkq"
+if [ "$NFT_OWNER" = "$IRIS_ADDRESS" ]; then
+echo "OK"
+fi
 ```
 
+
+### Transfer in a revisit style.
 
 ## A16 Perform cross-chain NFT transfer as flow-b4 (CLOSE) (OK CHANNEL)
 
@@ -2489,7 +2686,6 @@ $JUNO_BIN tx wasm execute $HASH \
 
 ```
 
-Verifica
 
 ```bash
 
