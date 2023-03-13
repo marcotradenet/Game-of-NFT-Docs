@@ -2,12 +2,18 @@
 
 source ./.set_vars_gon
 
-path=$1
-#echo $path
+entry_path=$1
+
+entry_path=$(./path-reducer.sh $entry_path)
+echo $entry_path
+
+# Verifica se la stringa inserita è un palindromo o meno
+
+#echo $entry_path
 FULL_PATH=""
-#for (( i=0; i<${#path}; i=$(($i + 1)) )); do
-for (( i=0; i<${#path}; i++ )); do
-  CH="${path:$i:2}"
+#for (( i=0; i<${#entry_path}; i=$(($i + 1)) )); do
+for ((i = 0; i < ${#entry_path}; i++)); do
+  CH="${entry_path:$i:2}"
   #echo $CH
   SEG=
   if [ $CH = "is" ]; then
@@ -61,7 +67,7 @@ for (( i=0; i<${#path}; i++ )); do
   fi
 
   if [ ! "$SEG" = "" ]; then
-  FULL_PATH=$SEG/$FULL_PATH
+    FULL_PATH=$SEG/$FULL_PATH
   fi
 done
 
