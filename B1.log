@@ -1,0 +1,67 @@
+########################### BEGIN THE RACE AT Wed Mar 15 11:20:02 AM UTC 2023 ###########################
+[OK] Extract correct flow f1
+[OK] Found correct flow f1
+[OK] Try to elaborate path i1s1j1u1o1i
+============================== START ================================
+---------------------------------------------------
+[OK] Start step 1
+
+  SEGMENT: i1s
+  SRC: i - NUM: 1 - DST: s - CUR_PATH: i1s
+  [OK] Exec transfer
+  [OK] Got hash transfer 1693DB047EB05E4B9FF71AE5FF22A645AEAAC4DCF94F46AA03EF980B03315A33 and confirm
+  [OK] Got new denom stars1kd7u4jucpc7q5sm4f4rsy3v7grj9gty6zksz8tezz79uxvse63rqhwvgjp. Go haed... 
+
+[OK] End step 1
+---------------------------------------------------
+---------------------------------------------------
+[OK] Start step 2
+
+  SEGMENT: s1j
+  SRC: s - NUM: 1 - DST: j - CUR_PATH: i1s1j
+  [OK] Exec transfer
+  [OK] Got hash transfer FD8E89D919F98FF9EFC1B354EB0FF9CE3716242CC6B9C0D188289370918C9FFC and confirm
+  [OK] Got new denom juno1kk0k8f7aq4659zds8072m2pulheeehmcn0u0u8npmvtapffxukkqld6sck. Go haed... 
+
+[OK] End step 2
+---------------------------------------------------
+---------------------------------------------------
+[OK] Start step 3
+
+  SEGMENT: j1u
+  SRC: j - NUM: 1 - DST: u - CUR_PATH: i1s1j1u
+  [OK] Exec transfer
+  [OK] Got hash transfer A0F1882D603DCF3E93CEE8D55774C51F91FC09C63574FA7096A2FF0044E1284B and confirm
+  [OK] Got new denom ibc/AA13DC4FBF98AFE6E3ADFFA35134C402226F4A41E152007BBCC16A10336656C0. Go haed... 
+
+[OK] End step 3
+---------------------------------------------------
+---------------------------------------------------
+[OK] Start step 4
+
+  SEGMENT: u1o
+  SRC: u - NUM: 1 - DST: o - CUR_PATH: i1s1j1u1o
+  [OK] Exec transfer
+  [OK] Got hash transfer 4E03E6003931958FE136E6D2EC9261995F51D0EBF535F4637A8D60B7CD4C603E and confirm
+  [OK] Got new denom ibc/2996F3E187594D0500C2FDE2A1457BCD47C28B03FA01C9BD747955012D53F9DF. Go haed... 
+
+[OK] End step 4
+---------------------------------------------------
+---------------------------------------------------
+[OK] Start step 5
+
+  SEGMENT: o1i
+  SRC: o - NUM: 1 - DST: i - CUR_PATH: i1s1j1u1o1i
+  [OK] Exec transfer
+  [OK] Got hash transfer EB2FD85C65D6AC8D5EED1A924D8C74C6A5E45E148A47B524A53E684F751B19C4 and confirm
+  [OK] Got new denom ibc/571895A89A58FFE9FE57C36DC949D647C0B6A900FCA2531905CAECCA30FC86DB. Go haed... 
+
+[OK] End step 5
+---------------------------------------------------
+[OK] Now try to send the nft to new owner
+   [OK] Round 0 for transfer owner
+[OK] Got hash transfer owner A73FA0D63A189ACD665ED69DABBEA7098A3917A8C6E2E863172D54276A3A1308 and confirmed
+[OK] Owner confirmed
+IF YOU ARE HERE GRAT WORK!!!!
+============================== END ================================
+########################### END THE RACE AT Wed Mar 15 11:22:42 AM UTC 2023 IN 160 SECS ###########################

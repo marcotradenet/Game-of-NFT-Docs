@@ -1,0 +1,20 @@
+#!/usr/local/bin/bash
+
+WALLET_NAME="GoN-Race"
+IRIS_BIN="iris"
+JUNO_BIN="junod"
+UPTICK_BIN="uptickd"
+OMNIFLIX_BIN="omniflixhubd"
+STARGAZE_BIN="starsd"
+
+IRIS_ADDRESS=iaa1ufep2fr5rqpah33rg5durzpyekggthh5cl883j
+JUNO_ADDRESS=juno1ufep2fr5rqpah33rg5durzpyekggthh5m0yd5l
+UPTICK_ADDRESS=uptick1wnj5rczyrfcpypu6sna7julxrs73mt5srsnrjh
+OMNIFLIX_ADDRESS=omniflix1ufep2fr5rqpah33rg5durzpyekggthh5srk0ya
+STARGAZE_ADDRESS=stars1ufep2fr5rqpah33rg5durzpyekggthh5epstcj
+
+# IRIS_ADDRESS=$($IRIS_BIN keys show $WALLET_NAME --keyring-backend test --output json | jq -r '.address')
+# JUNO_ADDRESS=$($JUNO_BIN keys show $WALLET_NAME --keyring-backend test --output json | jq -r '.address')
+# UPTICK_ADDRESS=$($UPTICK_BIN keys show $WALLET_NAME --keyring-backend test --output json | jq -r '.address')
+# OMNIFLIX_ADDRESS=$($OMNIFLIX_BIN keys show $WALLET_NAME --keyring-backend test --output json | jq -r '.address')
+# STARGAZE_ADDRESS=$($STARGAZE_BIN keys show $WALLET_NAME --keyring-backend test --output json | jq -r '.address')

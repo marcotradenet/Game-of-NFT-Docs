@@ -1,0 +1,94 @@
+########################### BEGIN THE RACE AT Wed Mar 22 08:11:46 AM UTC 2023 ###########################
+[OK] Extract correct flow f2
+[OK] Found correct flow f2
+[OK] Try to elaborate path i1s1j1u1o2i
+============================== START ================================
+---------------------------------------------------
+[OK] Start step 1
+
+  SEGMENT: i1s
+  SRC: i - NUM: 1 - DST: s - CUR_PATH: i1s
+  [OK] Exec transfer
+  [OK] Got hash transfer E30E29A651394EB8C49B302A5ADFBD6184FBB753E153A1CEF5F9D447AD1F485A and confirm
+  [OK] Self Relay...
+  [OK] Try start rly gon-irishub-1_channel-22-elgafar-1_channel-207
+  [OK] Try start rly elgafar-1_channel-207-gon-irishub-1_channel-22
+  [OK] ====> /root/marco-gon/main self-relay-direct gon-irishub-1 elgafar-1 E30E29A651394EB8C49B302A5ADFBD6184FBB753E153A1CEF5F9D447AD1F485A --self-relay
+  [OK] ... pid 420067
+  [OK] Got new denom stars1unjgjcyhhx5r8tn96hqs92xdv6d0hy64xw55qu4um8awvy5qdulq0ggj28. Go haed... 
+
+[OK] End step 1
+---------------------------------------------------
+---------------------------------------------------
+[OK] Start step 2
+
+  SEGMENT: s1j
+  SRC: s - NUM: 1 - DST: j - CUR_PATH: i1s1j
+  [OK] Exec transfer
+  [OK] Got hash transfer 01419BAF6B6D1FFC5EE1051F5948AAF9427FCB98765AD7E82FCA0FE954A80824 and confirm
+  [OK] Self Relay...
+  [OK] Try start rly elgafar-1_channel-230-uni-6_channel-120
+  [OK] Try start rly uni-6_channel-120-elgafar-1_channel-230
+  [OK] ====> /root/marco-gon/main self-relay-direct elgafar-1 uni-6 01419BAF6B6D1FFC5EE1051F5948AAF9427FCB98765AD7E82FCA0FE954A80824 --self-relay
+  [OK] ... pid 420970
+  [OK] Self Relay... get new denom of step round 0
+  [OK] ... new pid 422539
+  [OK] Got new denom juno1c2m04cdfvt9atwzc8vf0dhg0w6aygnw84qxkgf87majnt5ggsn2smd43q5. Go haed... 
+
+[OK] End step 2
+---------------------------------------------------
+---------------------------------------------------
+[OK] Start step 3
+
+  SEGMENT: j1u
+  SRC: j - NUM: 1 - DST: u - CUR_PATH: i1s1j1u
+  [OK] Exec transfer
+  [OK] Got hash transfer F81C5A241D34B98900C7BE26256FD4F5315186FB62CFF28B0390B5428B5B8F29 and confirm
+  [OK] Self Relay...
+  [OK] Try start rly uni-6_channel-86-uptick_7000-2_channel-7
+  [OK] Try start rly uptick_7000-2_channel-7-uni-6_channel-86
+  [OK] ====> /root/marco-gon/main self-relay-direct uni-6 uptick_7000-2 F81C5A241D34B98900C7BE26256FD4F5315186FB62CFF28B0390B5428B5B8F29 --self-relay
+  [OK] ... pid 422625
+  [OK] Got new denom ibc/A610F72F743AC5B5521590223CF5FCEE089236A1277ADC99D8E7B3C894243B8E. Go haed... 
+
+[OK] End step 3
+---------------------------------------------------
+---------------------------------------------------
+[OK] Start step 4
+
+  SEGMENT: u1o
+  SRC: u - NUM: 1 - DST: o - CUR_PATH: i1s1j1u1o
+  [OK] Exec transfer
+  [OK] Got hash transfer F618E8A92032F3391B3AA1FA7C671E7D42E613311D674A40968F927F8A815D76 and confirm
+  [OK] Self Relay...
+  [OK] Try start rly uptick_7000-2_channel-5-gon-flixnet-1_channel-41
+  [OK] Try start rly gon-flixnet-1_channel-41-uptick_7000-2_channel-5
+  [OK] ====> /root/marco-gon/main self-relay-direct uptick_7000-2 gon-flixnet-1 F618E8A92032F3391B3AA1FA7C671E7D42E613311D674A40968F927F8A815D76 --self-relay
+  [OK] ... pid 424386
+  [OK] Got new denom ibc/8D4332B5DD00E1BA11E835052B1B6FF6DBC1B3991587C6A658B900069498A32A. Go haed... 
+
+[OK] End step 4
+---------------------------------------------------
+---------------------------------------------------
+[OK] Start step 5
+
+  SEGMENT: o2i
+  SRC: o - NUM: 2 - DST: i - CUR_PATH: i1s1j1u1o2i
+  [OK] Exec transfer
+  [OK] Got hash transfer E9EBCE333C5AEDAEDF1FF0105AF4EED755CB8A5990C11B3155745FCE7AF8ECFD and confirm
+  [OK] Self Relay...
+  [OK] Try start rly gon-flixnet-1_channel-25-gon-irishub-1_channel-1
+  [OK] Try start rly gon-irishub-1_channel-1-gon-flixnet-1_channel-25
+  [OK] ====> /root/marco-gon/main self-relay-direct gon-flixnet-1 gon-irishub-1 E9EBCE333C5AEDAEDF1FF0105AF4EED755CB8A5990C11B3155745FCE7AF8ECFD --self-relay
+  [OK] ... pid 425473
+  [OK] Got new denom ibc/7168E1ADE6CC7DCFE0AC0B1252B00213479E548865AE0BF104AF958380884A47. Go haed... 
+
+[OK] End step 5
+---------------------------------------------------
+[OK] Now try to send the nft to new owner
+   [OK] Round 0 for transfer owner
+[OK] Got hash transfer owner E33B31A67BE13C2ABD035C48A2AAAEA083DFD4653672F8901D1AE0943AA9AE33 and confirmed
+[OK] Owner confirmed
+IF YOU ARE HERE GRAT WORK!!!!
+============================== END ================================
+########################### END THE RACE AT Wed Mar 22 08:13:37 AM UTC 2023 IN 111 SECS ###########################
